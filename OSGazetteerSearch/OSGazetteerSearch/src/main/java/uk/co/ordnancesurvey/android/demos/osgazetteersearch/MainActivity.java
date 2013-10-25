@@ -32,6 +32,7 @@ import uk.co.ordnancesurvey.android.maps.Geocoder;
 import uk.co.ordnancesurvey.android.maps.GridPoint;
 import uk.co.ordnancesurvey.android.maps.GridRect;
 import uk.co.ordnancesurvey.android.maps.GridRectBuilder;
+import uk.co.ordnancesurvey.android.maps.MapProjection;
 import uk.co.ordnancesurvey.android.maps.OSMap;
 import uk.co.ordnancesurvey.android.maps.OSTileSource;
 import uk.co.ordnancesurvey.android.maps.MapFragment;
@@ -69,6 +70,8 @@ public class MainActivity extends Activity implements OnQueryTextListener  {
     private String mCurrentSearch;
     private SearchView mSearchView;
     private View mMapView;
+
+    private float mCurrentZoom = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -202,9 +205,12 @@ public class MainActivity extends Activity implements OnQueryTextListener  {
             {
                 rectBuilder.include(p.getPosition());
                 mMap.addMarker(new MarkerOptions().gridPoint(p.getPosition()).title(p.getName()));
-            }
+             }
 
-          /*  if(placemarks.size() > 0)
+
+
+            //TODO Zoom level need to fix , Used some random value
+             if(placemarks.size() > 0)
             {
                 GridRect gr = rectBuilder.build();
                 GridPoint gp = gr.center();
@@ -213,13 +219,13 @@ public class MainActivity extends Activity implements OnQueryTextListener  {
 
                 float widthM = Math.max(1000,(float)(gr.maxX-gr.minX)*1.1f);
                 float heightM = Math.max(1000,(float)(gr.maxY-gr.minY)*1.1f);
-                float widthPx = Math.max(1,mMap.getWidth());
-                float heightPx = Math.max(1,mMap.getHeight());
+                float widthPx = Math.max(1,300);
+                float heightPx = Math.max(1,300);
                 float mpp = Math.max(widthM/widthPx, heightM/heightPx);
 
                 CameraPosition camera = new CameraPosition(gp, mpp);
                 mMap.moveCamera(camera, true);
-            }*/
+            }
         }
     }
 
