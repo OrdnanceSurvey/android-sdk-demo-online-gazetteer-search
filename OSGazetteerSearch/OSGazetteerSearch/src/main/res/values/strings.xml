@@ -4,5 +4,8 @@
     <string name="app_name">OSGazetteerSearch</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="search_place">Places</string>
+    <string name="search_postcode">Post Codes</string>
+    <string name="search_no_results">No Results</string>
 
 </resources>
