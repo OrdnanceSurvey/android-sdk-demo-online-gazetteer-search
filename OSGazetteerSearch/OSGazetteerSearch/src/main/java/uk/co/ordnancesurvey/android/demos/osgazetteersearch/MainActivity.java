@@ -26,9 +26,12 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import uk.co.ordnancesurvey.android.maps.CameraPosition;
 import uk.co.ordnancesurvey.android.maps.FailedToLoadException;
 import uk.co.ordnancesurvey.android.maps.Geocoder;
 import uk.co.ordnancesurvey.android.maps.GridPoint;
+import uk.co.ordnancesurvey.android.maps.GridRect;
+import uk.co.ordnancesurvey.android.maps.GridRectBuilder;
 import uk.co.ordnancesurvey.android.maps.OSMap;
 import uk.co.ordnancesurvey.android.maps.OSTileSource;
 import uk.co.ordnancesurvey.android.maps.MapFragment;
@@ -38,7 +41,7 @@ import uk.co.ordnancesurvey.android.maps.BitmapDescriptor;
 import uk.co.ordnancesurvey.android.maps.Placemark;
 
 
-public class MainActivity extends Activity implements OnQueryTextListener {
+public class MainActivity extends Activity implements OnQueryTextListener  {
 
     /**
      * This API Key is registered for this application.
@@ -52,18 +55,20 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-
+    /* TODO need to implement places and postcode search
     private static final EnumSet<Geocoder.GeocodeType> POSTCODE
             = EnumSet.of(Geocoder.GeocodeType.OnlinePostcode);
 
     private static final EnumSet<Geocoder.GeocodeType> PLACES
             = EnumSet.of(Geocoder.GeocodeType.OnlineGazetteer);
+    */
 
     private Geocoder mGeocoder;
     private OSMap mMap;
 
-    private TextView  mStatusView;
+    private String mCurrentSearch;
     private SearchView mSearchView;
+    private View mMapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,11 +83,17 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         //create list of tileSources
         ArrayList<OSTileSource> sources = new ArrayList<OSTileSource>();
 
-          //create web tile source with API details
+        //create web tile source with API details
         sources.add(mMap.webTileSource(OS_API_KEY, OS_IS_PRO, null));
 
         mMap.setTileSources(sources);
-        mStatusView = new TextView(this);
+
+        //create a geocoder object
+        try {
+            mGeocoder = new Geocoder(null, OS_API_KEY, getApplicationContext(), OS_IS_PRO);
+        } catch (FailedToLoadException e) {
+            e.printStackTrace();
+        }
 
         Log.v(TAG, "onCreate complete.");
 
@@ -117,33 +128,32 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     }
 
     @Override
-    public boolean    onOptionsItemSelected (MenuItem item) {
-        Toast.makeText(this, "Selected Item: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-        return true;
+    public boolean  onOptionsItemSelected (MenuItem item) {
+         return true;
     }
 
     // The following callbacks are called for the SearchView.OnQueryChangeListener
     public boolean onQueryTextChange(String newText) {
-        newText = newText.isEmpty() ? "" : "Query so far: " + newText;
-     //   setContentView(mSearchText);
         return true;
     }
 
     public boolean onQueryTextSubmit(String query) {
-        //Toast.makeText(this, "Searching for: " + query + "...", Toast.LENGTH_SHORT).show();
-        if (query == null || query.trim().length() == 0) {
+         if (query == null || query.trim().length() == 0) {
             return true;
         }
-      //  performQuery(query);
-         mSearchView.clearFocus();
+
+        mSearchView.clearFocus();
+        mCurrentSearch = query;
+        performQuery(query);
         return true;
     }
 
-    public void performQuery(String query) {
+     public void performQuery(String query) {
 
         new PlaceQueryTask().execute(query);
     }
 
+    //create an async task to perform geocoding
     class PlaceQueryTask extends AsyncTask<String, Void, Geocoder.Result> {
 
         @Override
@@ -165,7 +175,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
                 return null;
             }
 
-            return mGeocoder.geocodeString(query, PLACES, null, 0, 15);
+            return mGeocoder.geocodeString(query, Geocoder.GeocodeType.allOnline(), null, 0, 50);
         }
 
 
@@ -176,11 +186,41 @@ public class MainActivity extends Activity implements OnQueryTextListener {
                 return;
             }
 
-      //      mAdapter.addAll(results.getPlacemarks());
+            //clear the map
+            mMap.clear();
 
-       //     mAdapter.notifyDataSetChanged();
+            //get the current place mark array
+            List<? extends Placemark> placemarks = results.getPlacemarks();
+            if (placemarks.size() == 0){
+                Toast.makeText(getApplicationContext(),"No location found with : " + mCurrentSearch, Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            //add marker on the map
+            GridRectBuilder rectBuilder = new GridRectBuilder();
+            for(Placemark p : placemarks)
+            {
+                rectBuilder.include(p.getPosition());
+                mMap.addMarker(new MarkerOptions().gridPoint(p.getPosition()).title(p.getName()));
+            }
+
+          /*  if(placemarks.size() > 0)
+            {
+                GridRect gr = rectBuilder.build();
+                GridPoint gp = gr.center();
+
+
+
+                float widthM = Math.max(1000,(float)(gr.maxX-gr.minX)*1.1f);
+                float heightM = Math.max(1000,(float)(gr.maxY-gr.minY)*1.1f);
+                float widthPx = Math.max(1,mMap.getWidth());
+                float heightPx = Math.max(1,mMap.getHeight());
+                float mpp = Math.max(widthM/widthPx, heightM/heightPx);
+
+                CameraPosition camera = new CameraPosition(gp, mpp);
+                mMap.moveCamera(camera, true);
+            }*/
         }
     }
-
 
 }
