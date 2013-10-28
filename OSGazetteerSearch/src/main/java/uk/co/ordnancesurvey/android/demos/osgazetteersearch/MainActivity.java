@@ -1,29 +1,20 @@
 package uk.co.ordnancesurvey.android.demos.osgazetteersearch;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.SearchManager;
-import android.app.SearchableInfo;
-import android.content.Context;
-import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
-import android.widget.TextView;
-import android.widget.Toast;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
+import android.view.View;
+import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
+import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 import uk.co.ordnancesurvey.android.maps.CameraPosition;
@@ -32,16 +23,14 @@ import uk.co.ordnancesurvey.android.maps.Geocoder;
 import uk.co.ordnancesurvey.android.maps.GridPoint;
 import uk.co.ordnancesurvey.android.maps.GridRect;
 import uk.co.ordnancesurvey.android.maps.GridRectBuilder;
-import uk.co.ordnancesurvey.android.maps.MapProjection;
-import uk.co.ordnancesurvey.android.maps.OSMap;
-import uk.co.ordnancesurvey.android.maps.OSTileSource;
 import uk.co.ordnancesurvey.android.maps.MapFragment;
 import uk.co.ordnancesurvey.android.maps.MarkerOptions;
-import uk.co.ordnancesurvey.android.maps.BitmapDescriptorFactory;
-import uk.co.ordnancesurvey.android.maps.BitmapDescriptor;
+import uk.co.ordnancesurvey.android.maps.OSMap;
+import uk.co.ordnancesurvey.android.maps.OSTileSource;
 import uk.co.ordnancesurvey.android.maps.Placemark;
 
 
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class MainActivity extends Activity implements OnQueryTextListener  {
 
     /**
